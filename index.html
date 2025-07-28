@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +12,7 @@
     <meta property="og:title" content="Entrepreneurship Quiz Challenge!">
     <meta property="og:description" content="Test your knowledge on small business management, leadership, ethics, and more! Prepare for your exams with this interactive quiz.">
     <meta property="og:image" content="https://placehold.co/1200x630/2563eb/ffffff?text=Entrepreneurship+Quiz">
-    <meta property="og:url" content="https://quiz-v0g4.onrender.com"> <!-- IMPORTANT: Update with your actual quiz URL -->
+    <meta property="og:url" content="https://yourdomain.com/quiz"> <!-- IMPORTANT: Update with your actual quiz URL -->
     <meta property="og:type" content="website">
     <!-- End Open Graph Meta Tags -->
 
@@ -37,13 +36,11 @@
             max-width: 600px;
             text-align: center;
             transition: all 0.5s ease-in-out;
-            opacity: 0;
-            transform: translateY(20px);
+            opacity: 1; /* Always visible and ready to fade in */
+            transform: translateY(0); /* Always in place */
         }
-        .quiz-container.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        /* No .quiz-container.show needed anymore for initial display */
+
         .option-button {
             background-color: #e2e8f0;
             color: #334155;
@@ -273,7 +270,7 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-    <div id="quiz-app" class="quiz-container hidden"> <!-- Hidden by default, shown after guide or if guide already seen -->
+    <div id="quiz-app" class="quiz-container show"> <!-- Always visible -->
         <div id="start-screen" class="text-center">
             <h1 class="text-4xl font-bold text-gray-800 mb-6">Entrepreneurship Exam Prep Quiz</h1>
             <p class="text-lg text-gray-600 mb-4">Ready to test your knowledge on small business management, leadership, ethics, and more? Let's begin!</p>
@@ -1306,7 +1303,7 @@
             challengeIntroScreen.classList.add('hidden');
             scoreCard.classList.add('hidden');
             quizScreen.classList.remove('hidden');
-            quizAppContainer.classList.add('show');
+            // quizAppContainer.classList.add('show'); // No need to re-add, it's always there
 
             displayQuestion();
         }
@@ -1546,7 +1543,7 @@
 
         function resetQuiz() {
             scoreCard.classList.remove('show');
-            quizAppContainer.classList.remove('show'); 
+            // quizAppContainer.classList.remove('show'); // No need to remove, it's always there
             
             setTimeout(() => {
                 userNameInput.value = "";
@@ -1561,7 +1558,7 @@
                 proficiencyScoreDisplay.classList.remove('text-red-600', 'text-orange-600', 'text-yellow-600', 'text-lime-600', 'text-green-600');
                 proficiencyScoreDisplay.classList.add('text-lg', 'font-bold', 'mb-4');
                 
-                quizAppContainer.classList.add('show'); 
+                // quizAppContainer.classList.add('show'); // No need to re-add, it's always there
             }, 500);
         }
 
@@ -1628,7 +1625,7 @@
 
                 startScreen.classList.add('hidden');
                 challengeIntroScreen.classList.remove('hidden');
-                // quizAppContainer.classList.add('show'); // Will be shown by closeGuide if guide is present
+                // quizAppContainer.classList.add('show'); // Already visible
                 
                 challengerNameDisplay.textContent = challengedSharerName;
                 challengerScoreDisplay.textContent = challengedSharerScore;
@@ -1641,8 +1638,9 @@
                 challengerProficiencyDisplay.classList.add(getScoreColor(challengedSharerProficiency));
                 
             } else {
-                // startScreen.classList.remove('hidden'); // Will be shown by closeGuide if guide is present
-                // quizAppContainer.classList.add('show'); // Will be shown by closeGuide if guide is present
+                startScreen.classList.remove('hidden');
+                challengeIntroScreen.classList.add('hidden'); // Ensure hidden if not a challenge
+                // quizAppContainer.classList.add('show'); // Already visible
             }
         }
 
@@ -1671,7 +1669,7 @@
         // --- Guide Modal Functions (New) ---
         function showGuide() {
             guideModal.classList.remove('hidden');
-            quizAppContainer.classList.add('hidden'); // Hide main app while guide is open
+            // quizAppContainer.classList.add('hidden'); // REMOVED: Do not hide the main app
             // Initialize demo blank
             demoBlankText.textContent = '____';
             demoBlankText.classList.remove('filled'); // Ensure it's not filled initially
@@ -1680,37 +1678,24 @@
         function closeGuide() {
             localStorage.setItem(QUIZ_GUIDE_SHOWN_KEY, 'true');
             guideModal.classList.add('hidden');
-            quizAppContainer.classList.remove('hidden'); // Show main app container
+            // quizAppContainer.classList.remove('hidden'); // REMOVED: No need to show, it's always visible
             
-            // Determine which initial screen to show based on challenge status
-            if (challengedSharerName) {
-                challengeIntroScreen.classList.remove('hidden');
-                startScreen.classList.add('hidden'); // Ensure start screen is hidden
-            } else {
-                startScreen.classList.remove('hidden');
-                challengeIntroScreen.classList.add('hidden'); // Ensure challenge screen is hidden
-            }
-            quizAppContainer.classList.add('show'); // Trigger fade-in animation
+            // The checkChallengeInUrl already sets the correct initial screen (start or challenge)
+            // so we just need to ensure the quizAppContainer is set to 'show'
+            // quizAppContainer.classList.add('show'); // Already visible
         }
 
         // --- Event Listeners ---
         window.addEventListener('load', () => {
-            checkChallengeInUrl(); // Check for challenge params first
+            checkChallengeInUrl(); // Check for challenge params first and set initial screen state
             setupShareListeners();
 
             // If guide has not been shown, display it
             if (localStorage.getItem(QUIZ_GUIDE_SHOWN_KEY) !== 'true') {
                 showGuide();
-            } else {
-                // If guide already shown, ensure the correct initial screen is visible
-                // and the main app container is shown.
-                if (challengedSharerName) {
-                    challengeIntroScreen.classList.remove('hidden');
-                } else {
-                    startScreen.classList.remove('hidden');
-                }
-                quizAppContainer.classList.add('show');
             }
+            // The quizAppContainer is already visible by default, and checkChallengeInUrl
+            // handles which sub-screen (start or challenge) is active.
         });
 
         startButton.addEventListener('click', () => startGame(false));
